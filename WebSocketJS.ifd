@@ -1,46 +1,52 @@
 {
-  "kind": "discovery#restDescription",
+  "kind":             "discovery#restDescription",
   "discoveryVersion": "v1",
-  "id": "WebSocketJS",
-  "name": "WebSocket JS",
-  "description": "Detects users with a camera using WebSocket technology.",
-  "version": "0.1",
-  "protocol": "js",
-  "basePath": "WebSocketJS",
+  "id":               "WebSocketJS",
+  "name":             "WebSocket JS",
+  "description":      "Detects users with a camera using WebSocket technology.",
+  "version":          "0.1",
+  "protocol":         "js",
+  "basePath":         "WebSocketJS",
   "dependencies": [
-    "EventEmitter.js",
-    "lodash.min.js",
-    "WebSocketJS.js"
+                      "EventEmitter.js",
+                      "lodash.min.js",
+                      "WebSocketJS.js"
   ],
-   "icons": {
-    "x32": "websocket-logo.png"
+  "icons": {
+    "x32":            "websocket-logo.png"
   },
-  "schemas": {
-    "WebSocketJS": {
-      "id": "WebSocketJS",	 
-      "type": "object",
-      "properties": {
-        "ServerHost": {
-          "title": "Server host",
-          "type": "string",
-          "description": "ServerHost"
+  "schemas":
+  {
+    "WebSocketJS":
+    {
+      "id":       "WebSocketJS",	 
+      "type":     "object",
+      "properties":
+      {
+        "ServerHost":
+        {
+          "title":        "Server host",
+          "type":         "string",
+          "description":  "ServerHost"
         },
-        "ServerPort": {
-          "title": "Server port",
-          "type": "integer",
-          "description": "ServerPort"
+        "ServerPort":
+        {
+          "title":        "Server port",
+          "type":         "integer",
+          "description":  "ServerPort"
         },
-        "ActivateLogs": {
-          "title": "Activate debug log",
-          "type": "boolean",
-          "description": "ActivateLogs"
-        },
-               
-        "LogText": {
-          "title": "Debug log",
-          "type": "string",
-		  "readonly": true,
-          "description": "LogText"
+        "ActivateLogs":
+        {
+          "title":        "Activate debug log",
+          "type":         "boolean",
+          "description":  "ActivateLogs"
+        },       
+        "LogText":
+        {
+          "title":        "Debug log",
+          "type":         "string",
+		      "readonly":     true,
+          "description":  "LogText"
         }
       }
     }
