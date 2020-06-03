@@ -42,10 +42,12 @@ function WebSocketJS() {
 
     //this could also be an empty obj
     this.MainFace = new face();
+    
     this.IsMainFaceDetected = false;
 
     //this will mimic the collection
     this.FacesArray = [];
+    this.Faces = this.FacesArray;
     //dict for dwell time
     //id: time, ...
     this.startTimeMap = {}
@@ -109,12 +111,13 @@ function WebSocketJS() {
 WebSocketJS.prototype.parseMessageData = function(message_in) {
     if(message_in != null && message_in != "")
     {   
-
+        var maxHeadSize = 0;
+        var mainFaceID = -1;
         
         var jsonMessage = JSON.parse(message_in);
         
-        this.FaceCount = parseInt(jsonMessage["Count"]);
-        this.emit('FaceCountChanged', [this.FaceCount]);
+        //this.FaceCount = parseInt(jsonMessage["Count"]);
+        //this.emit('FaceCountChanged', [this.FaceCount]);
 
         //an array of faces
         //include faces?
@@ -160,8 +163,6 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
             var j_emotion_confidence = faceJSON.emotions;
             var j_head_pose = faceJSON.headpose;
 
-
-
             // console.log(
             //     "id: " + j_id + "\n" +
             //     "gender: " + j_gender + "\n" +
@@ -182,6 +183,13 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
             //use default for now
             if(j_face_size < 100) {
                 continue;
+            }
+            
+            //check for the largest head and assign local variables
+            if(j_face_size > maxHeadSize)
+            {
+                maxHeadSize = j_face_size;
+                mainFaceID = j_id;
             }
 
             var newFace = new face();
@@ -204,7 +212,10 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
             localFacesArray.push(newFace);
 
         }
-        //you need to compard the list to the previous one to raise events
+        
+        //compare the newly created (every loop) localFacesArray
+        //with the globally available array of faces => this.FacesArray
+        //-----------------------------------------------------------------
 
         localFacesArray = _.sortBy(localFacesArray, 'Id');
         
@@ -214,28 +225,24 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
             //return where statement
             return globalExceptLocal.indexOf(obj.Id) >= 0;
         });
-        //var removedArray   = _.difference(this.FacesArray, localFacesArray);
+        
 
         var localExceptGlobal = _.difference(_.pluck(localFacesArray, "Id"), _.pluck(this.FacesArray, "Id"));
         var addedArray =  _.filter(localFacesArray, function(obj) {
             return localExceptGlobal.indexOf(obj.Id) >= 0;
         });
-        //var addedArray      = _.difference(localFacesArray, this.FacesArray);
+        //-----------------------------------------------------------------
 
-        /*
-        console.log(
-            "removed arr: " + JSON.stringify(removedArray) + "\n" +
-            "local arr: " + JSON.stringify(localFacesArray) + "\n" +
-            "added arr: " + JSON.stringify(addedArray) 
-        );
-        */
-        // removedArray.forEach(element => {
-        //     console.log("removed: " + JSON.parse(element));
-        // });
+        /*  console.log(
+                "removed arr: " + JSON.stringify(removedArray) + "\n" +
+                "local arr: " + JSON.stringify(localFacesArray) + "\n" +
+                "added arr: " + JSON.stringify(addedArray) 
+            );  */
+
 
         //you're checking if the length is greater than 0
         //if 1 or more has been removed or added then fire
-        console.log("removed length: " + removedArray.length + "\nadded length: " + addedArray.length);
+        //console.log("removed length: " + removedArray.length + "\nadded length: " + addedArray.length);
 
         if(removedArray.length > 0) {
 
@@ -243,7 +250,6 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
                 console.log("raise event===>>>face lost for: " + element.Id + " " + element.Gender);
                 //remove from the key/val startTimeMap
             });
-        
         }
 
         if(addedArray.length > 0) {
@@ -252,13 +258,16 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
                 console.log("raise event===>>>face added for: " + element.Id + " " + element.Gender);
                 //add to the key/val startTimeMap
             });
-
         }
+
+
+
+        //make sure this is correct - then
 
         var newCount = localFacesArray.length;
         var oldCount = this.FacesArray.length;
 
-        console.log("new count: " + newCount + " old count: " + oldCount)
+        console.log("new count: " + newCount + " old count: " + oldCount);
 
         //raise count event changed
         //because I'm not yet adding the new to the global - this always fires
@@ -275,6 +284,7 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
                 this.FacesArray.push(localFacesArray[i]);
 
                 console.log("===========>>> added user id:" + localFacesArray[i].Id);
+                console.log("face arr: " + JSON.stringify(this.FacesArray));
 
                 
             }//end for 
@@ -284,23 +294,90 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
         else if(newCount < oldCount) {
             for(var i = newCount; i < oldCount; i++) {
                 //remove element at provided index
-                console.log("===========>>> removed user:" + i );
+                
                 this.FacesArray.splice(i, 1);
+                console.log("===========>>> removed user:" + i );
                 console.log("face arr: " + JSON.stringify(this.FacesArray));
 
             }//end for
         }
 
-        //never removing them - that's why they're the same
+        // copy the properties into the list updating the id and other parameters!!!
+        var fEIndex = 0;
+        localFacesArray.forEach(element => {
 
-        
+            //console.log("id, gender==>" + element.Id + ", " + element.Gender);
+            this.FacesArray[fEIndex].Id             = element.Id;
+            this.FacesArray[fEIndex].X              = element.X;
+            this.FacesArray[fEIndex].Y              = element.Y;
+            this.FacesArray[fEIndex].Width          = element.Width;
+            this.FacesArray[fEIndex].Height         = element.Height;
+            this.FacesArray[fEIndex].Gender         = element.Gender;
+            this.FacesArray[fEIndex].Age            = element.Age;
+            this.FacesArray[fEIndex].AgeRange       = element.AgeRange;
+            this.FacesArray[fEIndex].DwellTime      = element.DwellTime;
+            this.FacesArray[fEIndex].FaceSize       = element.FaceSize;
+            this.FacesArray[fEIndex].MainEmotion    = element.MainEmotion;
+            this.FacesArray[fEIndex].MainEmotionConfidence  = element.MainEmotionConfidence;
+            this.FacesArray[fEIndex].EmotionConfidence      = element.EmotionConfidence;
+            this.FacesArray[fEIndex].HeadPoseEstimation     = element.HeadPoseEstimation;
+
+
+
+            fEIndex++;
+        });
+
+        this.FaceCount = this.FacesArray.length;
+        this.emit('FaceCountChanged', [this.FaceCount]);
+
+        //update 'main' face  
+        if(this.FaceCount > 0)
+        {
+            //defaut or first - sort of
+            var result = this.FacesArray.find(x => x.Id == mainFaceID);
+            
+            if(result == undefined) {
+                //console.log("No Results For Main Face");
+                //this if statement should never be entered
+                //this.IsMainFaceDetected = false;
+            }
+            else{
+                
+                //console.log(JSON.stringify(result) + " @@@@@## you've somehow managed to get it right ##@@@@@@@@@");
+
+                this.MainFace = result;
+                this.MainFace.DwellTime = Date.now(); //add the mapping to key/value
+                console.log("Main:::::" + JSON.stringify(this.MainFace));
+                this.IsMainFaceDetected = true;
+                this.emit('IsMainFaceDetectedChanged', [this.IsMainFaceDetected]);
+                //need emit to update 
+                this.emit('MainFaceChanged', [this.MainFace]);
+            }
+
+        }
+        else {
+            this.IsMainFaceDetected = false;
+            this.emit('IsMainFaceDetectedChanged', [this.IsMainFaceDetected]);
+
+            //update with blank
+            this.MainFace = new face();
+            this.emit('MainFaceChanged', [this.MainFace]);
+        }
+
+
+
+        //update array duplicate 
+        this.emit('FacesChanged', [this.Faces]);
 
 
 
         console.log("from message method count: " + jsonMessage["Count"]);
-    }
 
-}
+
+
+
+    }//end if 
+}//end parseMessageData function
 
 WebSocketJS.prototype.setServerHost= function (ServerHost) {
     if (this.ServerHost != ServerHost) {
