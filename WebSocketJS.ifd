@@ -10,7 +10,9 @@
   "dependencies": [
                       "EventEmitter.js",
                       "lodash.min.js",
-                      "WebSocketJS.js"
+                      "WebSocketJS.js",
+                      "face.js",
+                      "lodash.min.js"
   ],
   "icons": {
     "x32":            "websocket-logo.png"
@@ -35,6 +37,180 @@
           "type":         "integer",
           "description":  "ServerPort"
         },
+
+
+        "MinimumFaceSize": {
+					"title": "Minimum face size",
+					"type": "integer",
+					"description": "Minimum face size"
+				},
+				"DetectionUpdateFrequency": {
+					"title": "Detection update frequency",
+					"type": "integer",
+					"description": "Detection update frequency"
+				},
+
+        "FaceCount":
+        {
+					"title":        "Face count",
+					"type":         "integer",
+					"readonly":     true,
+					"description":  "Face count"
+				},
+        "MainFace": {
+					"title": "Main face",
+					"type": "object",
+					"readonly": true,
+					"properties": {
+						"Id": {
+							"title": "ID",
+							"type": "integer",
+							"description": "ID"
+						},
+						"X": {
+							"title": "X",
+							"type": "number",
+							"description": "X",
+							"format": "double"
+						},
+						"Y": {
+							"title": "Y",
+							"type": "number",
+							"description": "Y",
+							"format": "double"
+						},
+						"Width": {
+							"title": "Width",
+							"type": "number",
+							"description": "Width",
+							"format": "double"
+						},
+						"Height": {
+							"title": "Height",
+							"type": "number",
+							"description": "Height",
+							"format": "double"
+						},
+						"Gender": {
+							"title": "Gender",
+							"type": "string",
+							"description": "Gender"
+						},
+						"Age": {
+							"title": "Age",
+							"type": "string",
+							"description": "Age"
+						},
+						"AgeRange": {
+							"title": "Age range",
+							"type": "string",
+							"description": "Age range"
+						},
+						"DwellTime": {
+							"title": "Dwell time",
+							"type": "number",
+							"description": "Dwell time",
+							"format": "double"
+						},
+						"FaceSize": {
+							"title": "Face size",
+							"type": "integer",
+							"description": "Face size"
+						},
+						"MainEmotion": {
+							"title": "Main emotion",
+							"type": "string",
+							"description": "Main emotion"
+						},
+						"MainEmotionConfidence": {
+							"title": "Main emotion confidence",
+							"type": "number",
+							"description": "Main emotion confidence",
+							"format": "double"
+						},
+						"EmotionConfidence": {
+							"title": "Emotion confidence",
+							"type": "object",
+							"description": "Emotion confidence",
+							"properties": {
+								"Angry": {
+									"title": "Angry",
+									"type": "number",
+									"description": "Angry",
+									"format": "double"
+								},
+								"Happy": {
+									"title": "Happy",
+									"type": "number",
+									"description": "Happy",
+									"format": "double"
+								},
+								"Neutral": {
+									"title": "Neutral",
+									"type": "number",
+									"description": "Neutral",
+									"format": "double"
+								},
+								"Sad": {
+									"title": "Sad",
+									"type": "number",
+									"description": "Sad",
+									"format": "double"
+								},
+								"Surprised": {
+									"title": "Surprised",
+									"type": "number",
+									"description": "Surprised",
+									"format": "double"
+								}
+							}
+						},
+            "HeadPoseEstimation": {
+							"title": "Head pose",
+							"type": "object",
+							"description": "Head pose",
+							"properties": {
+								"Pitch": {
+									"title": "Pitch",
+									"type": "number",
+									"description": "Pitch",
+									"format": "double"
+								},
+								"Yaw": {
+									"title": "Yaw",
+									"type": "number",
+									"description": "Yaw",
+									"format": "double"
+								},
+								"Roll": {
+									"title": "Roll",
+									"type": "number",
+									"description": "Roll",
+									"format": "double"
+								}
+							}
+						}
+					}
+				},
+
+        "IsMainFaceDetected": {
+					"title": "Is main face detected",
+					"type": "boolean",
+					"description": "Is main face detected",
+					"readonly": true
+				},
+
+        "Faces": {
+					"title": "Faces",
+					"type": "array",
+					"readonly": true,
+					"description": "Faces",
+					"items": {
+						"$ref": "Face"
+					}
+				},
+
+
         "ActivateLogs":
         {
           "title":        "Activate debug log",
@@ -49,7 +225,148 @@
           "description":  "LogText"
         }
       }
+    },
+    "Face": {
+			"id": "Face",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"title": "ID",
+					"type": "integer",
+					"description": "ID"
+				},
+				"X": {
+					"title": "X",
+					"type": "number",
+					"description": "X",
+					"format": "double"
+				},
+				"Y": {
+					"title": "Y",
+					"type": "number",
+					"description": "Y",
+					"format": "double"
+				},
+				"Width": {
+					"title": "Width",
+					"type": "number",
+					"description": "Width",
+					"format": "double"
+				},
+				"Height": {
+					"title": "Height",
+					"type": "number",
+					"description": "Height",
+					"format": "double"
+				},
+				"Gender": {
+					"title": "Gender",
+					"type": "string",
+					"description": "Gender"
+				},
+				"Age": {
+					"title": "Age",
+					"type": "string",
+					"description": "Age"
+				},
+				"AgeRange": {
+					"title": "Age range",
+					"type": "string",
+					"description": "Age range"
+				},
+				"DwellTime": {
+					"title": "Dwell time",
+					"type": "number",
+					"description": "Dwell time",
+					"format": "double"
+				},
+				"FaceSize": {
+					"title": "Face size",
+					"type": "integer",
+					"description": "Face size"
+				},
+				"MainEmotion": {
+					"title": "Main emotion",
+					"type": "string",
+					"description": "Main emotion"
+				},
+				"MainEmotionConfidence": {
+					"title": "Main emotion confidence",
+					"type": "number",
+					"description": "Main emotion confidence",
+					"format": "double"
+				},
+				"EmotionConfidence": {
+					"title": "Emotion confidence",
+					"type": "object",
+					"description": "Emotion confidence",
+					"properties": {
+						"Angry": {
+							"title": "Angry",
+							"type": "number",
+							"description": "Angry",
+							"format": "double"
+						},
+						"Happy": {
+							"title": "Happy",
+							"type": "number",
+							"description": "Happy",
+							"format": "double"
+						},
+						"Neutral": {
+							"title": "Neutral",
+							"type": "number",
+							"description": "Neutral",
+							"format": "double"
+						},
+						"Sad": {
+							"title": "Sad",
+							"type": "number",
+							"description": "Sad",
+							"format": "double"
+						},
+						"Surprised": {
+							"title": "Surprised",
+							"type": "number",
+							"description": "Surprised",
+							"format": "double"
+						}
+					}
+				},
+				"HeadPoseEstimation": {
+					"title": "Head pose",
+					"type": "object",
+					"description": "Head pose",
+					"properties": {
+						"Pitch": {
+							"title": "Pitch",
+							"type": "number",
+							"description": "Pitch",
+							"format": "double"
+						},
+						"Yaw": {
+							"title": "Yaw",
+							"type": "number",
+							"description": "Yaw",
+							"format": "double"
+						},
+						"Roll": {
+							"title": "Roll",
+							"type": "number",
+							"description": "Roll",
+							"format": "double"
+						}
+					}
+				}
+			}
     }
+    
+
+
+
+
+
+
   },
   "resources": {    
     "WebSocketJS": {
@@ -97,7 +414,19 @@
               "type": "string"
             }
           }
-        }
+        },
+        "FaceCountChanged": {
+					"id": "FaceCountChanged",
+					"if.category": "FaceDetection",
+					"title": "Face count changed",
+					"description": "Raised when face count changed.",
+					"properties": {
+						"Count": {
+							"type": "integer",
+							"title": "Count"
+						}
+					}
+				}
 		
       }
     }
