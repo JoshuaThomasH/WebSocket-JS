@@ -415,6 +415,52 @@
             }
           }
         },
+
+        "FaceDetected": {
+					"id": "FaceDetected",
+					"if.category": "FaceDetection",
+					"title": "Face detected",
+					"description": "Raised when a new face is detected.",
+					"properties": {
+						"FaceId": {
+							"type": "integer",
+							"title": "ID"
+						},
+						"Gender": {
+							"type": "string",
+							"title": "Gender"
+						},
+						"Age": {
+							"type": "string",
+							"title": "Age"
+						}
+					}
+				},
+				"FaceLost": {
+					"id": "FaceLost",
+					"if.category": "FaceDetection",
+					"title": "Face lost",
+					"description": "Raised when a face is lost.",
+					"properties": {
+						"FaceId": {
+							"type": "integer",
+							"title": "ID"
+						},
+						"Gender": {
+							"type": "string",
+							"title": "Gender"
+						},
+						"Age": {
+							"type": "string",
+							"title": "Age"
+						},
+						"DwellTime": {
+							"title": "Dwell time",
+							"type": "number",
+							"format": "double"
+						}
+					}
+				},
         "FaceCountChanged": {
 					"id": "FaceCountChanged",
 					"if.category": "FaceDetection",

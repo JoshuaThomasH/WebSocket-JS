@@ -248,7 +248,12 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
 
             removedArray.forEach(element => {
                 console.log("raise event===>>>face lost for: " + element.Id + " " + element.Gender);
+
+                this.emit("FaceLost", [element.Id, element.Gender, element.Age, element.DwellTime]);
                 //remove from the key/val startTimeMap
+
+                
+
             });
         }
 
@@ -256,7 +261,11 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
             
             addedArray.forEach(element => {
                 console.log("raise event===>>>face added for: " + element.Id + " " + element.Gender);
+
+                this.emit("FaceDetected", [element.Id, element.Gender, element.Age]);
                 //add to the key/val startTimeMap
+                this.startTimeMap[element.Id] = Date.now();
+
             });
         }
 
@@ -272,15 +281,17 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
         //raise count event changed
         //because I'm not yet adding the new to the global - this always fires
         if(newCount != oldCount) {
-            console.log("===>>>Face Count Has Changed<<<===");
+            //console.log("===>>>Face Count Has Changed<<<===");
+            this.emit('FaceCountChanged', [newCount]);
         }
         //add new users
         if(newCount > oldCount) {
 
             for(var i = 0; i < newCount - oldCount; i++) {
 
-                //seb is adding an empty element to the list here
-                //my object is already populated unless I"m missing a few variables here
+                //add an element to the global list
+                //it will be populated with the proper variables in another method
+
                 this.FacesArray.push(localFacesArray[i]);
 
                 console.log("===========>>> added user id:" + localFacesArray[i].Id);
@@ -315,7 +326,9 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
             this.FacesArray[fEIndex].Gender         = element.Gender;
             this.FacesArray[fEIndex].Age            = element.Age;
             this.FacesArray[fEIndex].AgeRange       = element.AgeRange;
-            this.FacesArray[fEIndex].DwellTime      = element.DwellTime;
+
+            console.log("::::dwell=========>" +  (Date.now() - this.startTimeMap[element.Id]) / 1000);
+            this.FacesArray[fEIndex].DwellTime      = (Date.now() - this.startTimeMap[element.Id]) / 1000; //element.DwellTime;
             this.FacesArray[fEIndex].FaceSize       = element.FaceSize;
             this.FacesArray[fEIndex].MainEmotion    = element.MainEmotion;
             this.FacesArray[fEIndex].MainEmotionConfidence  = element.MainEmotionConfidence;
@@ -346,7 +359,7 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
                 //console.log(JSON.stringify(result) + " @@@@@## you've somehow managed to get it right ##@@@@@@@@@");
 
                 this.MainFace = result;
-                this.MainFace.DwellTime = Date.now(); //add the mapping to key/value
+                //this.MainFace.DwellTime = Date.now(); //add the mapping to key/value
                 console.log("Main:::::" + JSON.stringify(this.MainFace));
                 this.IsMainFaceDetected = true;
                 this.emit('IsMainFaceDetectedChanged', [this.IsMainFaceDetected]);
