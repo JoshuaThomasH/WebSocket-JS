@@ -79,39 +79,8 @@ function WebSocketJS() {
 
     // on PLW [windows] websocket doesn't exist
     // make sure to run this check
-    //
-    //
-    if (typeof WebSocket !== 'undefined') {
 
-        var wsUri = "ws://" + this.ServerHost + ":" + this.ServerPort;
 
-        this.refWS = new WebSocket(wsUri);
-        this.refWS.onopen = function (event) {
-            //TODO
-            console.log("ON OPEN");
-        }
-        
-        var self = this;
-        this.refWS.onmessage = function (event) {
-            //console.log("MESSAGE: " + event.data);
-            
-            //Raise trigger with message
-            self.emit('MessageReceived',[event.data]);
-
-            self.parseMessageData(event.data);
-            //we need to parse the data and propagate the variables
-
-			if (self.ActivateLogs){
-				self.LogText = event.data;
-				self.emit('LogTextChanged', [this.ServerHostLogText]);
-			}
-
-        }
-
-        this.refWS.onerror = function (event) {
-            console.log("ERROR: " + event.data);
-        }
-    }
 };
 
 
@@ -136,6 +105,10 @@ WebSocketJS.prototype.setDetectionUpdateFrequency = function(updateFreq) {
 }
 
 WebSocketJS.prototype.parseMessageData = function(message_in) {
+
+
+
+
     if(message_in != null && message_in != "")
     {   
         var maxHeadSize = 0;
@@ -434,20 +407,67 @@ WebSocketJS.prototype.setServerPort= function (ServerPort) {
 };
 
 
+
+
+
+WebSocketJS.prototype.ConnectToServer = function () {
+
+    if (typeof WebSocket !== 'undefined') {
+
+        var wsUri = "ws://" + this.ServerHost + ":" + this.ServerPort;
+
+        this.refWS = new WebSocket(wsUri);
+        this.refWS.onopen = function (event) {
+            //TODO
+            console.log("ON OPEN");
+        }
+        
+        var self = this;
+        this.refWS.onmessage = function (event) {
+            //console.log("MESSAGE: " + event.data);
+            
+            //Raise trigger with message
+            self.emit('MessageReceived',[event.data]);
+
+            self.parseMessageData(event.data);
+            //we need to parse the data and propagate the variables
+
+			if (self.ActivateLogs) {
+				self.LogText = event.data;
+				self.emit('LogTextChanged', [this.ServerHostLogText]);
+			}
+
+        }
+
+        this.refWS.onerror = function (event) {
+            console.log("ERROR: " + event.data);
+        }
+        
+    }//end if
+
+}
+WebSocketJS.prototype.DisconnectFromServer = function () {
+
+
+}
+
+//---------------------------------------------------------
+//will need to get rid of the methods below
+
 WebSocketJS.prototype.StartListening = function () {
     //no need to call connect here?
     console.log("Start Listening");
 
 }
 
-WebSocketJS.prototype.StopListening = function ()
-{
+WebSocketJS.prototype.StopListening = function () {
+
     //this.refWS.close();
     console.log("Stop Listening");
 }
 
-WebSocketJS.prototype.SendMessage = function (message)
-{
+WebSocketJS.prototype.SendMessage = function (message) {
+
     this.refWS.send(message);
     console.log("Message sent: " + message);
 }

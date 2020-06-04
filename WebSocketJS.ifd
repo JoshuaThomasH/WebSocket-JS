@@ -373,7 +373,8 @@
       "title": "WebSocket JS",
       "isInterfaceAsset": true,
 	  "if.templateDesignAccelerator": "WebSocket.dax",
-      "methods": {
+      "methods":
+      {
         "StartListening": {
           "title": "Start listening",
           "description": "Starts listening to Websocket messages.",
@@ -388,20 +389,37 @@
             "type": "null"
           }
         },
-		"SendMessage": {
-          "title": "Sends a message",
-          "description": "Sends a message through the WebSocket",
-		   "parameters": {
-            "message": {
-              "type": "string",
-              "description": "Message to send",              
-              "title": "Message"
+		    "SendMessage": {
+            "title": "Sends a message",
+            "description": "Sends a message through the WebSocket",
+		        "parameters": {
+              "message": {
+                "type": "string",
+                "description": "Message to send",              
+                "title": "Message"
+              }
+		        },
+            "response": {
+              "type": "null"
             }
-		   },
-          "response": {
-            "type": "null"
-          }
-        }
+        },
+
+        "ConnectToServer": {
+					"title": "Connect to face detection server",
+					"description": "Connect to face detection server",
+					"response": {
+						"type": "null"
+					}
+				},
+				"DisconnectFromServer": {
+					"title": "Disconnect from face detection server",
+					"description": "Disconnect from face detection server",
+					"response": {
+						"type": "null"
+					}
+				}
+
+
       },
       "events": {                        
         "MessageReceived": {
