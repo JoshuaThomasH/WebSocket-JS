@@ -43,7 +43,13 @@ function WebSocketJS() {
     //this could also be an empty obj
     this.MainFace = new face();
     
+    this.MinimumFaceSize = 100;
+
+    //FPS Limiter
+    this.DetectionUpdateFrequency = 100;
+
     this.IsMainFaceDetected = false;
+
 
     //this will mimic the collection
     this.FacesArray = [];
@@ -107,6 +113,27 @@ function WebSocketJS() {
         }
     }
 };
+
+
+//MinimumFaceSize setter
+WebSocketJS.prototype.setMinimumFaceSize = function(minFaceSize) {
+    
+    if(this.MinimumFaceSize != minFaceSize) {
+        
+        this.MinimumFaceSize = parseInt(minFaceSize);
+
+    }
+}
+
+//DetectionUpdateFrequency setter
+WebSocketJS.prototype.setDetectionUpdateFrequency = function(updateFreq) {
+    
+    if(this.DetectionUpdateFrequency != updateFreq) {
+        
+        this.DetectionUpdateFrequency = parseInt(updateFreq);
+
+    }
+}
 
 WebSocketJS.prototype.parseMessageData = function(message_in) {
     if(message_in != null && message_in != "")
@@ -181,7 +208,7 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
              */
             //this should be moved to the top of the loop
             //use default for now
-            if(j_face_size < 100) {
+            if(j_face_size < this.MinimumFaceSize) {
                 continue;
             }
             
