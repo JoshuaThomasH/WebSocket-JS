@@ -1,0 +1,105 @@
+{
+  "kind":             "discovery#restDescription",
+  "discoveryVersion": "v1",
+  "id":               "WebSocketJS",
+  "name":             "WebSocket JS",
+  "description":      "Detects users with a camera using WebSocket technology.",
+  "version":          "0.1",
+  "protocol":         "js",
+  "basePath":         "WebSocketJS",
+  "dependencies": [
+                      "EventEmitter.js",
+                      "lodash.min.js",
+                      "WebSocketJS.js"
+  ],
+  "icons": {
+    "x32":            "websocket-logo.png"
+  },
+  "schemas":
+  {
+    "WebSocketJS":
+    {
+      "id":       "WebSocketJS",	 
+      "type":     "object",
+      "properties":
+      {
+        "ServerHost":
+        {
+          "title":        "Server host",
+          "type":         "string",
+          "description":  "ServerHost"
+        },
+        "ServerPort":
+        {
+          "title":        "Server port",
+          "type":         "integer",
+          "description":  "ServerPort"
+        },
+        "ActivateLogs":
+        {
+          "title":        "Activate debug log",
+          "type":         "boolean",
+          "description":  "ActivateLogs"
+        },       
+        "LogText":
+        {
+          "title":        "Debug log",
+          "type":         "string",
+		      "readonly":     true,
+          "description":  "LogText"
+        }
+      }
+    }
+  },
+  "resources": {    
+    "WebSocketJS": {
+      "title": "WebSocket JS",
+      "isInterfaceAsset": true,
+	  "if.templateDesignAccelerator": "WebSocket.dax",
+      "methods": {
+        "StartListening": {
+          "title": "Start listening",
+          "description": "Starts listening to Websocket messages.",
+          "response": {
+            "type": "null"
+          }
+        },
+        "StopListening": {
+          "title": "Stop listening",
+          "description": "Stops listening.",
+          "response": {
+            "type": "null"
+          }
+        },
+		"SendMessage": {
+          "title": "Sends a message",
+          "description": "Sends a message through the WebSocket",
+		   "parameters": {
+            "message": {
+              "type": "string",
+              "description": "Message to send",              
+              "title": "Message"
+            }
+		   },
+          "response": {
+            "type": "null"
+          }
+        }
+      },
+      "events": {                        
+        "MessageReceived": {
+          "id": "MessageReceived",
+          "title": "Message Received",
+          "properties": {
+            "message": {
+              "title": "Message",
+              "description": "The message received through the WebSocket",
+              "type": "string"
+            }
+          }
+        }
+		
+      }
+    }
+  }
+}

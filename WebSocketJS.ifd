@@ -208,22 +208,20 @@
 					"items": {
 						"$ref": "Face"
 					}
+        },
+        
+        "IsConnectedToFaceDetectionServer": {
+					"title": "Is connected to face detection server",
+					"type": "boolean",
+					"readonly": true,
+					"description": "Is connected to face detection server"
 				},
-
-
-        "ActivateLogs":
-        {
-          "title":        "Activate debug log",
-          "type":         "boolean",
-          "description":  "ActivateLogs"
-        },       
-        "LogText":
-        {
-          "title":        "Debug log",
-          "type":         "string",
-		      "readonly":     true,
-          "description":  "LogText"
-        }
+				"ActivityLog": {
+					"title": "Activity log",
+					"type": "string",
+					"readonly": true,
+					"description": "Activity log"
+				}
       }
     },
     "Face": {

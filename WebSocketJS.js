@@ -58,7 +58,8 @@ function WebSocketJS() {
     //id: time, ...
     this.startTimeMap = {}
 
-    var _ActivateLogs = false;
+    //gettting rid of logs
+    //var _ActivateLogs = false;
 
     Object.defineProperty(this, 'ActivateLogs',{
         enumerable: true,
@@ -72,17 +73,41 @@ function WebSocketJS() {
     });	
 
     //IA Properties
-    this.LogText = "";
+    //
+    this.IsConnectedToFaceDetectionServer = false;
+    this.ActivityLog = "";
     
 
-    var self = this;
+    //var self = this;
+    //try to add the interval here
 
-    // on PLW [windows] websocket doesn't exist
-    // make sure to run this check
-
+    //this.timerInterval = setInterval(self.timerElapsed, this.DetectionUpdateFrequency);
+    
+    
+    
+    
+    //console.log("this is the timer: " + this.timerInterval);
 
 };
 
+
+WebSocketJS.prototype.timerElapsed = function() {
+    var self = this;
+    console.log("timer!!!!!!!!!!!!!!!!!!!! " + self.MinimumFaceSize);
+    //clearInterval(1);
+
+}
+
+
+
+WebSocketJS.prototype.setDetectionUpdateFrequency = function(freq) {
+
+    if(this.DetectionUpdateFrequency != freq)
+    {
+        this.DetectionUpdateFrequency = parseInt(freq);
+    }
+
+}
 
 //MinimumFaceSize setter
 WebSocketJS.prototype.setMinimumFaceSize = function(minFaceSize) {
@@ -360,7 +385,7 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
 
                 this.MainFace = result;
                 //this.MainFace.DwellTime = Date.now(); //add the mapping to key/value
-                console.log("Main:::::" + JSON.stringify(this.MainFace));
+                //console.log("Main:::::" + JSON.stringify(this.MainFace));
                 this.IsMainFaceDetected = true;
                 this.emit('IsMainFaceDetectedChanged', [this.IsMainFaceDetected]);
                 //need emit to update 
@@ -392,6 +417,10 @@ WebSocketJS.prototype.parseMessageData = function(message_in) {
     }//end if 
 }//end parseMessageData function
 
+
+
+
+
 WebSocketJS.prototype.setServerHost= function (ServerHost) {
     if (this.ServerHost != ServerHost) {
         this.ServerHost = ServerHost;
@@ -412,44 +441,140 @@ WebSocketJS.prototype.setServerPort= function (ServerPort) {
 
 WebSocketJS.prototype.ConnectToServer = function () {
 
+
+    
+    // on PLW [windows] websocket doesn't exist
+    // make sure to run this check
     if (typeof WebSocket !== 'undefined') {
 
         var wsUri = "ws://" + this.ServerHost + ":" + this.ServerPort;
 
         this.refWS = new WebSocket(wsUri);
-        this.refWS.onopen = function (event) {
-            //TODO
-            console.log("ON OPEN");
-        }
         
         var self = this;
-        this.refWS.onmessage = function (event) {
+
+        var listeningToWS = false;
+        var timerInterval = setInterval(function(){
+        
+            console.log("inside interval: " + self.MinimumFaceSize)
+            listeningToWS = true;
+            //clearInterval(self.timerInterval);
+    
+        }, this.DetectionUpdateFrequency);
+
+        
+
+        this.refWS.onopen = function (event) {
+            //TODO
+            //console.log("ON OPEN");
+            self.onWebSocketOpen(event);
+        }
+        
+        
+        this.refWS.onmessage = function(event) {
             //console.log("MESSAGE: " + event.data);
             
             //Raise trigger with message
             self.emit('MessageReceived',[event.data]);
 
+            if(!listeningToWS)
+            {
+                console.log("we're not listening !!!!!!!  !!! !!! " + timerInterval)
+                return;
+            }
+            
+            listeningToWS = false;
+
+
             self.parseMessageData(event.data);
+            
             //we need to parse the data and propagate the variables
 
+            /*
 			if (self.ActivateLogs) {
 				self.LogText = event.data;
 				self.emit('LogTextChanged', [this.ServerHostLogText]);
-			}
+            }
+            */
+
+        }
+        this.refWS.onclose = function(event) {
+            console.log("ws built in close method fired");
+            self.onWebSocketClose(event);
+
+            clearInterval(timerInterval);
 
         }
 
-        this.refWS.onerror = function (event) {
-            console.log("ERROR: " + event.data);
+        this.refWS.onerror = function(event) {
+            //console.log("ERROR: " + event.data);
+            //self.ActivityLog += "REMOVE VIEWER ERROR:" + event.data + "\n";
+            self.onWebSocketError(event.data);
         }
-        
+
     }//end if
 
 }
 WebSocketJS.prototype.DisconnectFromServer = function () {
+    
+
+    if(this.refWS == undefined)
+    {
+        this.ActivityLog += "Web socket not currently connected" + "\n";
+        this.emit('ActivityLogChanged', [this.ActivityLog]);
+        console.log("there is no web socket to close!!");
+
+    }
+    else if(this.refWS.OPEN == 1) {
+        //close the connection if open
+        this.refWS.close();
+        //onWebSocketClose event will trigger
+        //set to null
+        this.refWS = null;
+        //var self = this;
+        console.log("it's closed!!");
+    }
+    else {
+
+        console.log("how did you manage to read this message!!");
+    }
+
+}
+
+WebSocketJS.prototype.onWebSocketError = function (messageIn) {
+
+    this.ActivityLog += "REMOVE VIEWER ERROR:" + messageIn + "\n";
+}
+//mimic private methods
+WebSocketJS.prototype.onWebSocketOpen = function(event) {
+
+    this.IsConnectedToFaceDetectionServer = true;
+
+    this.ActivityLog += "Web socket open on " + this.ServerHost + ":" + this.ServerPort + "\n";
+
+    this.emit('ActivityLogChanged', [this.ActivityLog]);
+    this.emit('IsConnectedToFaceDetectionServerChanged', [this.IsConnectedToFaceDetectionServer]);
+}
+
+WebSocketJS.prototype.onWebSocketClose = function(event) {
+
+    this.IsConnectedToFaceDetectionServer = false;
+
+    this.ActivityLog += "WebSocket Closed:" + event.wasClean + " code:" + event.code + " reason: " + event.reason  +  + "\n";
+    this.emit('ActivityLogChanged', [this.ActivityLog]);
+    this.emit('IsConnectedToFaceDetectionServerChanged', [this.IsConnectedToFaceDetectionServer]);
+
+    //update with blank
+    this.MainFace = new face();
+    this.emit('MainFaceChanged', [this.MainFace]);
+
+    //clear the array 
+
 
 
 }
+
+
 
 //---------------------------------------------------------
 //will need to get rid of the methods below
